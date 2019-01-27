@@ -6,7 +6,7 @@
   <thead>
     <tr>
       <th>List</th>
-      <th>Nameposition</th>
+      <th>Name</th>
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -15,7 +15,7 @@
     <% @cards.each do |card| %>
       <tr>
         <td><%= card.list %></td>
-        <td><%= card.nameposition %></td>
+        <td><%= card.name %></td>
         <td><%= link_to 'Show', card %></td>
         <td><%= link_to 'Edit', edit_card_path(card) %></td>
         <td><%= link_to 'Destroy', card, method: :delete, data: { confirm: 'Are you sure?' } %></td>
