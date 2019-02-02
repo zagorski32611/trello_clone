@@ -1,45 +1,79 @@
 <template>
     <div class="list">
       <h6>{{ list.name }}</h6>
-      <hr />
       <draggable v-model="list.cards" :options="{group: 'cards'}" class="dragArea" @change="cardMoved">
         <div v-for="(card, index) in list.cards" class="card card-body mb-3">
           {{ card.name }}
         </div>
       </draggable>
-      <div class="card card-body">
-        <textarea class="form-control" v-model="message"></textarea>
-        <button v-on:click="submitMessages(list.id)" class="btn btn-secondary">Save</button>
-      </div>
-    </div>
+
+      <a v-if="!editing" v-on:click="startEditing">Add a card</a>
+      <textarea v-if="editing" ref="message" v-model="message" class="form-control"></textarea>
+      <button v-if="editing"  v-on:click="submitMessage" class="btn btn-secondary">Save</button>
+      <a v-if="editing" v-on:click="editing=false">Close</a>
+    </div> 
 </template>
 
 
 <script>
+import draggable from 'vuedraggable'
 export default {
-    props: ["list"]
+  components: { draggable },
+  props: ["list"],
 
-    data function() {
-        return {
-            message: ""
-        }
-    },
+  data: function() {
+    return {
+      editing: false,
+      message: ""
+    }
+  },
     
-    methods: { 
-        submitMessages: function() {
-          var data = new FormData
-          data.append("card[list_id]", this.list.id)
-          data.append("card[name]", this.messages)
+  methods: {
+    startEditing: function() {
+      this.editing = true
+      this.$nextTick(() => {this.$refs.message.focus() })
+    },
+    cardMoved: function(event) {
+      const evt = event.added || event.moved 
+      if (evt == undefined) { return }
+
+      const element = evt.element
+      const list_index = window.store.lists.findIndex((list) => {
+      return list.cards.find((card) => {
+        return card.id === element.id
+      })
+    })
+
+    var data = new FormData
+    data.append("card[list_id]", window.store.lists[list_index].id)
+    data.append("card[position]", evt.newIndex + 1)
+    Rails.ajax({
+      url: `/cards/${element.id}/move`,
+      type: "PATCH",
+      data: data,
+      dataType: "json"
+    })
+  },
+  
+    submitMessage: function() {
+      var data = new FormData
+      data.append("card[list_id]", this.list.id)
+      data.append("card[name]", this.message)
+
+      Rails.ajax({
+        url: "/cards",
+        type: "POST",
+        data: data,
+        dataType: "json",
+        success: (data) => {
+          const index = window.store.lists.findIndex(item => item.id == this.list.id)
+          window.store.lists[index].cards.push(data)
+          this.message = ""
+          this.$nextTick(() => {this.$refs.message.focus() })
         }
-
-          Rails.ajax({
-            url: `/cards/${element.id}/move`,
-            type: "PATCH",
-            data: data,
-            dataType: "json"
-          })
-        },
-
+      })
+    }
+  }
 }
 </script>
 
