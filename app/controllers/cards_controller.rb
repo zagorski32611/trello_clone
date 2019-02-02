@@ -4,7 +4,7 @@ class CardsController < ApplicationController
   # GET /cards
   # GET /cards.json
   def index
-    @cards = Card.alldat
+    @cards = Card.all
   end
 
   # GET /cards/1
