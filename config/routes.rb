@@ -7,6 +7,12 @@ Rails.application.routes.draw do
       patch :move
     end
   end
+
+  resources :cards do
+    member do
+      patch :move
+    end
+  end
   resources :cards
 
 end

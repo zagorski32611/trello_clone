@@ -1,10 +1,10 @@
 class CardsController < ApplicationController
-  before_action :set_card, only: [:show, :edit, :update, :destroy]
+  before_action :set_card, only: [:show, :edit, :update, :destroy, :move]
 
   # GET /cards
   # GET /cards.json
   def index
-    @cards = Card.all
+    @cards = Card.alldat
   end
 
   # GET /cards/1
@@ -29,9 +29,9 @@ class CardsController < ApplicationController
     respond_to do |format|
       if @card.save
         format.html { redirect_to @card, notice: 'Card was successfully created.' }
-        format.json { render :show, status: :created, location: @card }
+        format.json { render action: :show, status: :created, location: @card }
       else
-        format.html { render :new }
+        format.html { render action: :show }
         format.json { render json: @card.errors, status: :unprocessable_entity }
       end
     end
@@ -60,6 +60,12 @@ class CardsController < ApplicationController
       format.json { head :no_content }
     end
   end
+
+  def move
+    @card.update(card_params)
+    render action: :show
+  end
+
 
   private
     # Use callbacks to share common setup or constraints between actions.
